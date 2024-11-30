@@ -7,3 +7,4 @@ Fall 2024
  1. [Linear Regression](hw1/)
  2. [Classification Problem](hw2/)
  3. [Support Vector Machine](hw3/)
+ 4. [AutoML and Ensemble](hw4/)
