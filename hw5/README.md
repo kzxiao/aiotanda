@@ -4,13 +4,6 @@ Course ID: 7716, CS, NCHU
 Dec., 2024
 
 ### HW5 - Deep Lerarning Basic
-<style>
-td, th {border: none!important;}
-th:first-of-type {width: 33.3%;}
-th:nth-of-type(2) {width: 33.3%;}
-th:nth-of-type(3) {width: 33.3%;}
-</style>
-
 ![](docs/imgs/hw5_demo1.jpg)<br>Iris | ![](docs/imgs/hw5_demo2.jpg)<br>MNIST | ![](docs/imgs/hw5_demo3.jpg)<br>CARFI10
 |:-:|:-:|:-:|
 
