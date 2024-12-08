@@ -6,7 +6,7 @@ import logging
 logging.getLogger("pytorch_lightning").setLevel(logging.WARNING)
 import warnings
 warnings.filterwarnings("ignore", ".*'pretrained' is deprecated.*")
-warnings.filterwarnings("ignore", ".*'weights' are deprecated.*")
+import torchvision
 
 from torchvision import transforms
 from torchvision.datasets import CIFAR10
@@ -15,13 +15,16 @@ from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 from pathlib import Path
 
-transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-])
-
 def load_cifar10():
+    # https://pytorch.org/vision/main/models/generated/torchvision.models.vgg16.html#torchvision.models.VGG16_Weights
+    # https://pytorch.org/vision/main/models/generated/torchvision.models.vgg16.html#torchvision.models.VGG16_Weights
+    # transform = transforms.Compose([
+    #     transforms.Resize((224, 224)),
+    #     # transforms.CenterCrop((224, 224)),
+    #     transforms.ToTensor(),
+    #     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    # ])
+    transform = transforms.Compose([torchvision.models.VGG16_Weights.IMAGENET1K_FEATURES.transforms()])
     root = "data"
     download = not (Path(root) / CIFAR10.base_folder).exists()
     train_dataset = CIFAR10(root=root, train=True, download=download, transform=transform)
@@ -49,10 +52,12 @@ class CifarClassifier(pl.LightningModule):
     def __init__(self, model_name="vgg16", num_classes=10, lr=1e-3):
         super().__init__()
         self.lr = lr
-        self.model = vgg19(pretrained=True) if model_name == "vgg19" else vgg16(pretrained=True)
+        self.model = vgg19(weights=torchvision.models.VGG19_Weights.IMAGENET1K_V1) if model_name == "vgg19" else vgg16(weights=torchvision.models.VGG16_Weights.IMAGENET1K_V1)
+        for p in self.model.features.parameters():
+            p.require_grad = False
         
         in_features = self.model.classifier[-1].in_features
-        self.model.classifier[-1] == nn.Linear(in_features, num_classes) 
+        self.model.classifier[-1] = nn.Linear(in_features, num_classes)
 
         self.criterion = nn.CrossEntropyLoss()
         self.test_acc = []
