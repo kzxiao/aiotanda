@@ -256,8 +256,7 @@ def _pl():
             loss = self.criterion(y_hat, y)
             # self.log("loss/train", loss)
             return loss
-        
-        @torch.no_grad()
+
         def validation_step(self, batch, batch_idx):
             loss, acc = self.validate(batch)
             self.val_acc += [acc.cpu().numpy()]
@@ -265,6 +264,7 @@ def _pl():
             self.log("val_loss", loss, prog_bar=False)
             self.log("val_accuracy", acc, prog_bar=False)
         
+        @torch.no_grad()
         def validate(self, batch):
             x, y = batch
             y_hat = self(x)
@@ -272,7 +272,6 @@ def _pl():
             acc = (y_hat.argmax(dim=1)==y).float().mean()
             return loss, acc
 
-        @torch.no_grad()
         def test_step(self, batch, batch_idx):
             loss, acc = self.validate(batch)
             self.test_acc += [acc.cpu().numpy()]
