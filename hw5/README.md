@@ -11,7 +11,7 @@ Dec., 2024
 #### Library Dependencies
 Install Python libraries
 ```bash
-python -m pip install scikit-learn tensorflow pytorch-lightning torchvision
+python -m pip install scikit-learn==1.2.2 tensorflow==2.13.1 pytorch-lightning==2.4.0 torchvision==0.17.2
 ```
 
 #### Running
