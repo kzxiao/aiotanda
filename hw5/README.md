@@ -403,7 +403,7 @@ _fit(_conv(), "conv")
 ##### 5.3 - CIFAR10 in VGG16 and VGG19
 ##### :speech_balloon: Step 1
 ###### :bulb: *Prompt*
-solve cifar10 classification problem in pretrained models of vgg16 and vgg19 in pytorch lightning, please.
+solve cifar10 classification problem in pretrained models of vgg16 and vgg19 with keras, please.
 
 ###### ![](docs/imgs/icons8-chatgpt.svg) *ChatGPT:*
 Here's a Python script implementing your requirements:
