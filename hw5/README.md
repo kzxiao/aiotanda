@@ -30,7 +30,7 @@ tensorboard --logdir_spec=dense:logs/2/dense/validation,conv:logs/2/conv/validat
 ```
 
 ```
-tensorboard --logdir_spec=vgg16:logs/3/vgg16/version_0,vgg19:logs/3/vgg19/version_0
+tensorboard --logdir_spec=vgg16:docs/logs/3/vgg16/validation,vgg19:docs/logs/3/vgg19/validation
 ```
 
 
@@ -408,112 +408,51 @@ solve cifar10 classification problem in pretrained models of vgg16 and vgg19 in 
 ###### ![](docs/imgs/icons8-chatgpt.svg) *ChatGPT:*
 Here's a Python script implementing your requirements:
 ```python
-import numpy as np
-import torch
-import torch.nn as nn
-import pytorch_lightning as pl
-import logging
-logging.getLogger("pytorch_lightning").setLevel(logging.WARNING)
-import warnings
-warnings.filterwarnings("ignore", ".*'pretrained' is deprecated.*")
-import torchvision
+import tensorflow as tf
+import keras
+from sklearn.model_selection import train_test_split
 
-from torchvision import transforms
-from torchvision.datasets import CIFAR10
-from torchvision.models import vgg16, vgg19
-from torch.utils.data import DataLoader
-from torch.utils.data.sampler import SubsetRandomSampler
-from pathlib import Path
-
+num_classes = 10
 def load_cifar10():
-    transform = transforms.Compose([torchvision.models.VGG16_Weights.IMAGENET1K_FEATURES.transforms()])
-    root = "data"
-    download = not (Path(root) / CIFAR10.base_folder).exists()
-    train_dataset = CIFAR10(root=root, train=True, download=download, transform=transform)
-    test_dataset = CIFAR10(root=root, train=False, download=download, transform=transform)
+    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
+    x_train = x_train.astype('float32') / 255
+    x_test = x_test.astype('float32') / 255
+    y_train = tf.keras.utils.to_categorical(y_train, num_classes=num_classes)
+    y_test = tf.keras.utils.to_categorical(y_test, num_classes=num_classes)
+    x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.17)
+    return x_train, x_val, y_train, y_val, x_test, y_test
     
-    n_train = len(train_dataset)
-    indices = list(range(n_train))
-    np.random.shuffle(indices)
-    split = int(np.floor(0.17 * n_train))
-    train_idx, valid_idx = indices[split:], indices[:split]
+x_train, x_val, y_train, y_val, x_test, y_test = load_cifar10()
+max_epochs = 20
+batch_size = 64
 
-    batch_size = 32
-    num_workers = 2
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, sampler=SubsetRandomSampler(train_idx), num_workers=num_workers)
-    val_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, sampler=SubsetRandomSampler(valid_idx), num_workers=num_workers)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
-    return train_loader, val_loader, test_loader
-
-train_loader, val_loader, test_loader = load_cifar10()
-print(f"train: {len(train_loader.sampler)}, val: {len(val_loader.sampler)}, test: {len(test_loader.sampler)}")
-
-max_epochs = 2
-
-class CifarClassifier(pl.LightningModule):
-    def __init__(self, model_name="vgg16", num_classes=10, lr=1e-3):
-        super().__init__()
-        self.lr = lr
-        self.model = vgg19(weights=torchvision.models.VGG19_Weights.IMAGENET1K_V1) if model_name == "vgg19" else vgg16(weights=torchvision.models.VGG16_Weights.IMAGENET1K_V1)
-        for p in self.model.features.parameters():
-            p.require_grad = False
-        
-        in_features = self.model.classifier[-1].in_features
-        self.model.classifier[-1] = nn.Linear(in_features, num_classes)
-
-        self.criterion = nn.CrossEntropyLoss()
-        self.test_acc = []
+def load_model(model_name):
+    vgg, l = (tf.keras.applications.vgg19.VGG19, -10) if model_name == 'vgg19' else (tf.keras.applications.vgg16.VGG16, -8)
+    model = vgg(weights='imagenet', include_top=False, classes=10, input_shape=(32,32,3))
+    for layer in model.layers[:l]:
+        layer.trainable = False
+    x = tf.keras.layers.Flatten()(model.output)
+    x = tf.keras.layers.Dense(512, activation='relu')(x)
+    x = tf.keras.layers.Dropout(0.5)(x)
+    x = tf.keras.layers.Dense(256, activation='relu')(x)
+    x = tf.keras.layers.Dropout(0.5)(x)
+    x = tf.keras.layers.Dense(num_classes, activation='softmax')(x)
+    model = tf.keras.models.Model(inputs=model.input, outputs=x)
+    return model
     
-    def forward(self, x):
-        return self.model(x)
-    
-    def training_step(self, batch, batch_idx):
-        x, y = batch
-        y_hat = self(x)
-        loss = self.criterion(y_hat, y)
-        return loss
-    
-    def validation_step(self, batch, batch_idx):
-        loss, acc = self.validate(batch)
-        self.log("val_loss", loss, prog_bar=False)
-        self.log("val_acc", acc, prog_bar=False)
-        return loss
-
-    @torch.no_grad()
-    def validate(self, batch):
-        x, y = batch
-        y_hat = self(x)
-        loss = self.criterion(y_hat, y)
-        acc = (y_hat.argmax(dim=1)==y).float().mean()
-        return loss, acc
-
-    def test_step(self, batch, batch_idx):
-        loss, acc = self.validate(batch)
-        self.test_acc += [acc.cpu().numpy()]
-        return loss, acc
-    
-    def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=self.lr)
-    
-    def evaluate(self):
-        return np.array(self.test_acc).mean()
-
 def _fit(model_name):
-    print(f"{model_name}:")
-    tb = pl.loggers.TensorBoardLogger(save_dir=f"logs/3/{model_name}", name=None)
-    model = CifarClassifier(model_name=model_name, num_classes=10, lr=1e-3)
-    trainer = pl.Trainer(max_epochs=max_epochs,log_every_n_steps=10, logger=tb)
-    trainer.fit(model, train_loader, val_loader)
-    trainer.test(model, dataloaders=test_loader)
-    acc = model.evaluate()
-    print(f"Test Accuracy: {acc:.4f}")
+    print(f'{model_name}:')
+    model = load_model(model_name)
+    early_stopping = keras.callbacks.EarlyStopping(monitor='loss', patience=2, restore_best_weights=True, verbose=1)
+    tbcb = keras.callbacks.TensorBoard(log_dir=f"logs/3/{model_name}", histogram_freq=0)
+    model.compile(loss='categorical_crossentropy',optimizer=tf.keras.optimizers.SGD(learning_rate=0.001, momentum=0.9) ,metrics=['accuracy'])
+    model.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=max_epochs, batch_size=batch_size, callbacks=[early_stopping, tbcb], verbose=1)
+    loss, accuracy = model.evaluate(x_test, y_test, verbose=0)
+    print(f"Test Accuracy: {accuracy:.4f}")
 
-def main():
-    _fit("vgg16")
-    _fit("vgg19")
 
-if __name__ == '__main__':
-    main()
+_fit("vgg16")
+_fit("vgg19")
 ```
 
-This script fulfills all the requirements specified. It uses PyTorch Lightning for training and evaluation, employs pre-trained VGG models, and properly handles dataset loading, logging, and evaluation.
+This script fulfills all the requirements specified. It uses Keras for training and evaluation, employs pre-trained VGG models, and properly handles dataset loading, logging, and evaluation.

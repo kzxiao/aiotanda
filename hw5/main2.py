@@ -3,10 +3,10 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
-from tf.keras.datasets import mnist
-from tf.keras.utils import to_categorical
-from tf.keras.models import Sequential
-from tf.keras.layers import Flatten, Dense, BatchNormalization, Dropout, Conv2D, MaxPooling2D
+from keras.datasets import mnist
+from keras.utils import to_categorical
+from keras.models import Sequential
+from keras.layers import Flatten, Dense, BatchNormalization, Dropout, Conv2D, MaxPooling2D
 from keras.callbacks import TensorBoard, EarlyStopping
 
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
@@ -24,7 +24,7 @@ max_epochs = 2
 
 def _fit(model, log_dir):
     early_stopping = EarlyStopping(monitor='loss', patience=2, restore_best_weights=True, verbose=1)
-    tbcb = TensorBoard(log_dir=f"2_logs/{log_dir}", histogram_freq=0)
+    tbcb = TensorBoard(log_dir=f"logs/2/{log_dir}", histogram_freq=0)
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'] )
     model.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=max_epochs, batch_size=batch_size, callbacks=[early_stopping, tbcb])
     loss, accuracy = model.evaluate(x_test, y_test)
