@@ -312,7 +312,7 @@ This implementation follows the same design principles in all three frameworks, 
 ##### 5.2 - MNIST classification problem in dense and convolutional
 ##### :speech_balloon: Step 1
 ###### :bulb: *Prompt*
-solve mnist classification problem with early stopping, batch normalzation and dropout dense and convolutional, please.
+solve mnist classification problem with early stopping, batch normalzation and dropout in dense and convolutional, please.
 
 ###### ![](docs/imgs/icons8-chatgpt.svg) *ChatGPT:*
 Here’s the Python script:
