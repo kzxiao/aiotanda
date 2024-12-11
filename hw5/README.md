@@ -4,7 +4,7 @@ Course ID: 7716, CS, NCHU
 Dec., 2024
 
 ### HW5 - Deep Lerarning Basic
-![](docs/imgs/hw5_demo1.jpg)<br>Iris | ![](docs/imgs/hw5_demo2.jpg)<br>MNIST | ![](docs/imgs/hw5_demo3.jpg)<br>CARFI10
+![](docs/imgs/hw5_demo1.jpg)<br>Iris | ![](docs/imgs/hw5_demo2.jpg)<br>MNIST | ![](docs/imgs/hw5_demo3.jpg)<br>CIFAR-10
 |:-:|:-:|:-:|
 
 
@@ -129,6 +129,8 @@ test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
 def _torch():
     print("Torch:")
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f"using device: {device}")
 
     class IrisNet(nn.Module):
         def __init__(self):
@@ -147,7 +149,8 @@ def _torch():
             x = self.fc3(x)
             return x
 
-    model = IrisNet()
+    model = IrisNet().to(device)
+
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.01)
     writer = SummaryWriter(log_dir='logs/1/torch')
@@ -163,6 +166,7 @@ def _torch():
         model.train()
         running_loss = 0.0
         for feature, labels in train_loader:
+            feature, labels = feature.to(device), labels.to(device)
             outputs = model(feature)
             loss = criterion(outputs, labels)
             optimizer.zero_grad()
@@ -176,6 +180,7 @@ def _torch():
         total = 0
         with torch.no_grad():
             for feature, labels in val_loader:
+                feature, labels = feature.to(device), labels.to(device)
                 outputs = model(feature)
                 loss = criterion(outputs, labels)
                 val_loss += loss.item()
@@ -207,21 +212,23 @@ def _torch():
     correct = 0
     total = 0
     with torch.no_grad():
-        for features, labels in test_loader:
-            outputs = model(features)
+        for feature, labels in test_loader:
+            feature, labels = feature.to(device), labels.to(device)
+            outputs = model(feature)
             _, predicted = torch.max(outputs, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
 
     accuracy = correct / total
-    print(f"Test Accuracy: {accuracy:.4f}\n")
+    print(f"Test Accuracy: {accuracy:.4f}")
 
 _torch()
 
 
 def _pl():
     print("Lightning:")
-    writer = SummaryWriter(log_dir='logs/2/pl')
+    writer = SummaryWriter(log_dir='logs/1/pl')
+    
     class IrisClassifier(pl.LightningModule):
 
         def __init__(self, input_size=4, 
@@ -246,7 +253,7 @@ def _pl():
             self.test_acc = []
             self.val_acc = []
             self.val_loss = []
-
+        
         def forward(self, x):
             return self.model(x)
         
@@ -256,18 +263,17 @@ def _pl():
             loss = self.criterion(y_hat, y)
             # self.log("loss/train", loss)
             return loss
-
+        
         def validation_step(self, batch, batch_idx):
             loss, acc = self.validate(batch)
             self.val_acc += [acc.cpu().numpy()]
             self.val_loss += [loss.cpu().numpy()]
             self.log("val_loss", loss, prog_bar=False)
-            self.log("val_accuracy", acc, prog_bar=False)
-        
+
         @torch.no_grad()
         def validate(self, batch):
             x, y = batch
-            y_hat = self(x)
+            y_hat = self.forward(x)
             loss = self.criterion(y_hat, y)
             acc = (y_hat.argmax(dim=1)==y).float().mean()
             return loss, acc
@@ -275,8 +281,6 @@ def _pl():
         def test_step(self, batch, batch_idx):
             loss, acc = self.validate(batch)
             self.test_acc += [acc.cpu().numpy()]
-            # self.log("test_loss", loss, prog_bar=False)
-            # self.log("test_acc", acc, prog_bar=False)
         
         def configure_optimizers(self):
             return torch.optim.Adam(self.parameters(), lr=self.lr)
@@ -289,14 +293,14 @@ def _pl():
             writer.add_scalar('epoch_accuracy', np.array(self.val_acc).mean(), self.current_epoch)
             self.val_loss.clear()
             self.val_acc.clear()
-
+    
     model = IrisClassifier()
     early_stopping = pl.callbacks.EarlyStopping(monitor="val_loss", patience=2, verbose=True, mode="min")
-    trainer = pl.Trainer(max_epochs=20, log_every_n_steps=1, callbacks=[early_stopping], enable_progress_bar=False)
+    trainer = pl.Trainer(max_epochs=max_epochs, log_every_n_steps=10, callbacks=[early_stopping], enable_progress_bar=False)
     trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
     trainer.test(model, dataloaders=test_loader, verbose=False)
     acc = model.evaluate()
-    print(f"Test Accuracy: {acc:.4f}")
+    print(f"Lightning Test Accuracy: {acc:.4f}")
 
 _pl()
 ```
