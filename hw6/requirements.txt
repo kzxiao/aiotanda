@@ -1,0 +1,6 @@
+tensorflow==2.13.1
+pytorch-lightning==2.4.0
+torchvision==0.17.2
+diffusers
+transformers
+sacremoses

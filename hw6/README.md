@@ -12,7 +12,7 @@ Dec., 2024
 #### Library Dependencies
 Install Python libraries
 ```bash
-python -m pip install numpy pytorch-lightning==2.4.0 torchvision==0.17.2 diffusers transformers sacremoses
+python -m pip install numpy pytorch-lightning==2.4.0 torchvision==0.17.2 tensorflow==2.13.1 diffusers transformers sacremoses
 ```
 
 #### Running
