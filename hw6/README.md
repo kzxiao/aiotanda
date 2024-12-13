@@ -189,8 +189,8 @@ The code follows CRISP-DM principles:
 ##### :speech_balloon: Step 1
 ###### :bulb: *Prompt*
 write hugging face to do:
-1. allow user to input chinese sentence, translate this to english.
-2. based on this english sentence generate an image.
+1. allow user to input chinese sentence, translate that to english.
+2. based on that english sentence generate an image.
 
 
 ###### ![](docs/imgs/icons8-chatgpt.svg) *ChatGPT:*
