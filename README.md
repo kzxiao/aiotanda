@@ -9,3 +9,4 @@ Fall 2024
  3. [Support Vector Machine](hw3/)
  4. [AutoML and Ensemble](hw4/)
  5. [Deep Lerarning Basic](hw5/)
+ 6. [Transfer Learning and Hugging Face](hw6/)

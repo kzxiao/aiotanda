@@ -17,7 +17,10 @@ python -m pip install numpy pytorch-lightning==2.4.0 torchvision==0.17.2 diffuse
 
 #### Running
 ```bash
-python main.py && python main2.py
+python main.py
+```
+```bash
+python main2.py
 ```
 
 #### Logging
