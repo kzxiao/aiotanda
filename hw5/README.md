@@ -1,9 +1,9 @@
 ## AIoT Applications and Data Analysis
 
 Course ID: 7716, CS, NCHU  
-Dec., 2024
+Dec 2024
 
-### HW5 - Deep Lerarning Basic
+### HW5 - Deep Learning Basics
 ![](docs/imgs/hw5_demo1.jpg)<br>Iris | ![](docs/imgs/hw5_demo2.jpg)<br>MNIST | ![](docs/imgs/hw5_demo3.jpg)<br>CIFAR-10
 |:-:|:-:|:-:|
 

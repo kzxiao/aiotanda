@@ -1,7 +1,7 @@
 ## AIoT Applications and Data Analysis
 
 Course ID: 7716, CS, NCHU  
-Nov., 2024
+Nov 2024
 
 ### HW3 - Support Vector Machine
 ![](docs/imgs/hw3_demo1.gif)

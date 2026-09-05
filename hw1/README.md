@@ -1,7 +1,7 @@
 ## AIoT Applications and Data Analysis
 
 Course ID: 7716, CS, NCHU  
-Sep., 2024
+Sep 2024
 
 ### HW1 - Linear Regression
 ![](docs/imgs/hw1_demo.gif)
@@ -20,7 +20,7 @@ python -m streamlit run main.py
 #### Exercise
 ##### :speech_balloon: Step 1
 ###### :bulb: *Prompt*
-Here is a Python program to solve linear regression using the `scikit-learn` library:
+write a Python program to solve linear regression using sklearn.
 
 ###### ![](docs/imgs/icons8-chatgpt.svg) *ChatGPT:*
 Here is a Python program to solve linear regression using the `scikit-learn` library:
@@ -319,4 +319,5 @@ Here’s the breakdown of the key prompt for generating the plot:
 **Scatter plot showing random points along a linear equation with a red regression line.** The chart should update dynamically based on user input from sliders for the slope (`a` from -10 to 10), noise (`c` from 0 to 100), and number of points (`n` from 10 to 500). The chart consists of two areas: on the left, user inputs are controlled by sliders, and on the right, the scatter plot (blue) and regression line (red) are displayed.
 
 ![](docs/imgs/hw1_step4.jpg)
+
 Here is the generated image showing the two-column layout with sliders on the left and the scatter plot with the red regression line on the right, matching the prompt.

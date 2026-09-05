@@ -1,7 +1,7 @@
 ## AIoT Applications and Data Analysis
 
 Course ID: 7716, CS, NCHU  
-Nov., 2024
+Nov 2024
 
 ### HW4 - AutoML and Ensemble
 ![](docs/imgs/hw4_demo.gif)

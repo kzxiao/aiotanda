@@ -1,7 +1,7 @@
 ## AIoT Applications and Data Analysis
 
 Course ID: 7716, CS, NCHU  
-Dec., 2024
+Dec 2024
 
 ### HW6 - Transfer Learning and Hugging Face
 ![](docs/imgs/hw6_demo1.jpg "Face Mask Classfication Problem")  

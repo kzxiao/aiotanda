@@ -1,7 +1,7 @@
 ## AIoT Applications and Data Analysis
 
 Course ID: 7716, CS, NCHU  
-Oct., 2024
+Oct 2024
 
 ### HW2 - Classification Problem
 ![](docs/imgs/hw2_demo.gif)
